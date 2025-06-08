@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 
-import '../constants/colors.dart';
-import '../model/Failure.model.dart';
-import '../model/Machine.model.dart';
-import '../model/Prediction.model.dart';
-import '../widget/machine_item.widget.dart';
-import '../widget/status_indicator.widget.dart';
+import '../../constants/colors.dart';
+import '../../model/Failure.model.dart';
+import '../../model/Machine.model.dart';
+import '../../model/Prediction.model.dart';
+import '../../widget/machines/machine_item.widget.dart';
+import '../../widget/machines/status_indicator.widget.dart';
 
-class Home extends StatelessWidget {
-  Home({Key? key}) : super(key: key);
+class MachinesScreen extends StatelessWidget {
+  MachinesScreen({Key? key}) : super(key: key);
 
   final machines = [
     Machine(
