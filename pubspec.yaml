@@ -35,7 +35,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_svg_icons: ^0.0.1
   provider: ^6.1.5
-  onnxruntime: ^1.4.1
   path_provider: ^2.1.5
   pie_chart: ^5.1.0
   fl_chart: ^0.64.0
