@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:maintenance_platform_frontend/widget/machines/progress_bar.widget.dart';
-
-
 import '../../constants/colors.dart';
 import '../../model/Failure.model.dart';
 import '../../model/Machine.model.dart';
@@ -22,7 +20,8 @@ class MachineItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double progress = 1 - (prediction.predictedRULHours / machine.expectedLifetimeHours);
+    double progress =
+        1 - (prediction.predictedRULHours / machine.expectedLifetimeHours);
 
     return InkWell(
       onTap: () {
@@ -44,18 +43,36 @@ class MachineItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${machine.name}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(
+                '${machine.name}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 5),
 
               // Fault Info
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Condition', style: TextStyle(color: textGrey, fontSize: 16)),
+                  Text(
+                    'Condition',
+                    style: TextStyle(color: textGrey, fontSize: 16),
+                  ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(color: tdGreen, borderRadius: BorderRadius.circular(25)),
-                    child: Text('Code ${failure.faultType}', style: TextStyle(color: textGreen)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: tdGreen,
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    child: Text(
+                      'Code ${failure.faultType}',
+                      style: TextStyle(color: textGreen),
+                    ),
                   ),
                 ],
               ),
@@ -66,9 +83,14 @@ class MachineItem extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Remaining life', style: TextStyle(color: textGrey, fontSize: 16)),
-                  Text('${prediction.predictedRULHours.toStringAsFixed(0)} hours',
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Remaining life',
+                    style: TextStyle(color: textGrey, fontSize: 16),
+                  ),
+                  Text(
+                    '${prediction.predictedRULHours.toStringAsFixed(0)} hours',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
               const SizedBox(height: 5),
@@ -85,12 +107,21 @@ class MachineItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Recommended Action', style: TextStyle(color: tdBlue, fontSize: 16)),
-                    const Text('Schedule inspection within 72 hours', style: TextStyle(color: tdPurple, fontSize: 14)),
+                    Text(
+                      'Recommended Action',
+                      style: TextStyle(color: tdBlue, fontSize: 16),
+                    ),
+                    const Text(
+                      'Schedule inspection within 72 hours',
+                      style: TextStyle(color: tdPurple, fontSize: 14),
+                    ),
                     const SizedBox(height: 8),
                     SizedBox(
                       width: double.infinity,
@@ -98,11 +129,24 @@ class MachineItem extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        onPressed: () => print('Schedule maintenance for gear ${machine.name}'),
-                        child: const Text('Schedule Maintenance Now', style: TextStyle(fontSize: 16)),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => Detail(machine: machine.name),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Schedule Maintenance Now',
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
                     ),
                   ],
