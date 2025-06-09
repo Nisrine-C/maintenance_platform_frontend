@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:maintenance_platform_frontend/widget/progress_bar.widget.dart';
+import 'package:maintenance_platform_frontend/widget/machines/progress_bar.widget.dart';
 
 
-import '../constants/colors.dart';
-import '../model/Failure.model.dart';
-import '../model/Machine.model.dart';
-import '../model/Prediction.model.dart';
-import '../screen/machine_detail.screen.dart';
+import '../../constants/colors.dart';
+import '../../model/Failure.model.dart';
+import '../../model/Machine.model.dart';
+import '../../model/Prediction.model.dart';
+import '../../screen/machienDetail/machine_detail.screen.dart';
 
 class MachineItem extends StatelessWidget {
   final Machine machine;

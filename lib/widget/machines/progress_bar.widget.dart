@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import '../constants/colors.dart';
+import '../../constants/colors.dart';
 
 
 class ProgressBar extends StatelessWidget {

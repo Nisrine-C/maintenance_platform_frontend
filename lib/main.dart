@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:maintenance_platform_frontend/app_routes.dart';
+import 'package:maintenance_platform_frontend/appBar/appBar.dart';
+import 'package:maintenance_platform_frontend/screen/dashbord/dashbord_screen.dart';
+
 import 'package:flutter/services.dart';
 import 'package:maintenance_platform_frontend/screen/machines.screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -13,6 +17,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     return MaterialApp(
+      title: 'Maintenance App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       debugShowCheckedModeBanner: false,
       title:'pi_prototype',
       home: MachinesScreen(),
