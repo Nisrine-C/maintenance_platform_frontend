@@ -39,7 +39,7 @@ Drawer buildHomeDrawer(BuildContext context) {
         ListTile(
           leading: Icon(Icons.home),
           title: Text('Home'),
-          onTap: () => Navigator.pushNamed(context, '/dashbord'),
+          onTap: () => Navigator.pushNamed(context, '/dashboard'),
         ),
         ListTile(
           leading: const Icon(Icons.precision_manufacturing),

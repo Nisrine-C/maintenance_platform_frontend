@@ -93,7 +93,9 @@ class MachinesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBar(context),
+      appBar: AppBar(
+        title: Text('Machines'),
+      ),
       drawer: buildHomeDrawer(context),
       backgroundColor: Colors.white,
       body: Container(
