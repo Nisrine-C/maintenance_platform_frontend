@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:maintenance_platform_frontend/app_routes.dart';
-import 'package:maintenance_platform_frontend/screen/dashbord/dashbord_screen.dart';
-import 'package:maintenance_platform_frontend/screen/machines/machines.screen.dart';
-import 'package:maintenance_platform_frontend/screen/maintenance/maintenance_home.screen.dart';
-import 'package:maintenance_platform_frontend/screen/maintenance/maintenance_management.screen.dart';
 import 'package:maintenance_platform_frontend/services/ai_engine_service.dart';
 import 'package:provider/provider.dart';
 

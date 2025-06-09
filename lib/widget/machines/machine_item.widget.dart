@@ -4,7 +4,7 @@ import '../../constants/colors.dart';
 import '../../model/Failure.model.dart';
 import '../../model/Machine.model.dart';
 import '../../model/Prediction.model.dart';
-import '../../screen/machienDetail/machine_detail.screen.dart';
+import '../../screen/machines/machine_detail.screen.dart';
 
 class MachineItem extends StatelessWidget {
   final Machine machine;
