@@ -14,11 +14,12 @@ PreferredSizeWidget buildAppBar(BuildContext context) {
     foregroundColor: const Color.fromARGB(255, 6, 6, 6),
     elevation: 50.0,
     leading: Builder(
-      builder: (context) => IconButton(
-        icon: const Icon(Icons.menu),
-        tooltip: 'Menu Icon',
-        onPressed: () => Scaffold.of(context).openDrawer(),
-      ),
+      builder:
+          (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            tooltip: 'Menu Icon',
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
     ),
   );
 }
@@ -30,7 +31,10 @@ Drawer buildHomeDrawer(BuildContext context) {
       children: <Widget>[
         const DrawerHeader(
           decoration: BoxDecoration(color: Colors.blue),
-          child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+          child: Text(
+            'Menu',
+            style: TextStyle(color: Colors.white, fontSize: 24),
+          ),
         ),
         ListTile(
           leading: Icon(Icons.home),
@@ -38,14 +42,14 @@ Drawer buildHomeDrawer(BuildContext context) {
           onTap: () => Navigator.pushNamed(context, '/dashbord'),
         ),
         ListTile(
-          leading: Icon(Icons.settings),
-          title: Text('Machine Detail Screen'),
+          leading: const Icon(Icons.precision_manufacturing),
+          title: const Text('Machine Detail Screen'),
           onTap: () => Navigator.pushNamed(context, '/machines'),
         ),
         ListTile(
-          leading: Icon(Icons.settings),
-          title: Text('Manitenance Management Screen'),
-          onTap: () => Navigator.pushNamed(context, '/manitenaceManagement'),
+          leading: const Icon(Icons.build),
+          title: const Text('Maintenance Management'),
+          onTap: () => Navigator.pushNamed(context, '/maintenance'),
         ),
       ],
     ),
