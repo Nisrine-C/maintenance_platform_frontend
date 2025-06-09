@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:maintenance_platform_frontend/screen/machines.screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title:'pi_prototype',
-      home: Home(),
+      home: MachinesScreen(),
     );
   }
 }
