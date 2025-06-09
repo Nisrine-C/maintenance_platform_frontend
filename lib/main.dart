@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:maintenance_platform_frontend/app_routes.dart';
 import 'package:maintenance_platform_frontend/screen/dashbord/dashbord_screen.dart';
 import 'package:maintenance_platform_frontend/screen/machines/machines.screen.dart';
 import 'package:maintenance_platform_frontend/screen/maintenance/maintenance_home.screen.dart';
@@ -35,12 +36,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         initialRoute: '/dashboard',
-        routes: {
-          '/dashboard': (context) =>  DashbordScreen(),
-          '/machines': (context) =>  MachinesScreen(),
-          '/maintenance_home':(context) => MaintenanceHomeScreen(),
-          '/maintenance' : (context) => MaintenanceManagementScreen()
-        },
+        routes: appRoutes
       ),
     );
   }

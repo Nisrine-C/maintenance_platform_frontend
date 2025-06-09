@@ -6,7 +6,7 @@ import 'package:maintenance_platform_frontend/screen/maintenance/maintenance_man
 import 'package:maintenance_platform_frontend/screen/maintenance/maintenance_home.screen.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
-  '/dashbord': (context) => DashbordScreen(),
+  '/dashboard': (context) => DashbordScreen(),
   '/machines': (context) => MachinesScreen(),
   '/maintenance': (context) => const MaintenanceManagementScreen(),
   '/maintenance_home': (context) => MaintenanceHomeScreen(),
