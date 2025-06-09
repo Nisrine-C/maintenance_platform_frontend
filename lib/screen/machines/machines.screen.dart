@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg_icons/flutter_svg_icons.dart';
 
+import '../../appBar/appBar.dart';
 import '../../constants/colors.dart';
 import '../../model/Failure.model.dart';
 import '../../model/Machine.model.dart';
@@ -92,7 +93,8 @@ class MachinesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: buildAppBar(context),
+      drawer: buildHomeDrawer(context),
       backgroundColor: Colors.white,
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -161,30 +163,4 @@ class MachinesScreen extends StatelessWidget {
     );
   }
 
-
-  // Your custom AppBar widget builder
-  AppBar _buildAppBar() {
-    return AppBar(
-      elevation: 0,
-      backgroundColor: Colors.white,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const SvgIcon(
-            size: 25,
-            icon: SvgIconData('assets/svg/menu_icon.svg'),
-          ),
-          const Text('Machines'),
-          SizedBox(
-            height: 40,
-            width: 40,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.asset('assets/img/avatar.png'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
