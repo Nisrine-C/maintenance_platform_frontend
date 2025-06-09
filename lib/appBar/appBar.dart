@@ -47,6 +47,11 @@ Drawer buildHomeDrawer(BuildContext context) {
           onTap: () => Navigator.pushNamed(context, '/machines'),
         ),
         ListTile(
+          leading: const Icon(Icons.home_repair_service),
+          title: const Text('Maintenance Home'),
+          onTap: () => Navigator.pushNamed(context, '/maintenance_home'),
+        ),
+        ListTile(
           leading: const Icon(Icons.build),
           title: const Text('Maintenance Management'),
           onTap: () => Navigator.pushNamed(context, '/maintenance'),

@@ -3,8 +3,15 @@ import 'package:table_calendar/table_calendar.dart';
 
 class CalendarCard extends StatelessWidget {
   final DateTime focusedDay;
+  final DateTime selectedDay;
+  final Function(DateTime, DateTime)? onDaySelected;
 
-  CalendarCard({required this.focusedDay});
+  const CalendarCard({
+    Key? key,
+    required this.focusedDay,
+    required this.selectedDay,
+    this.onDaySelected,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,17 +21,18 @@ class CalendarCard extends StatelessWidget {
         padding: const EdgeInsets.all(12.0),
         child: Column(
           children: [
-            Text(
+            const Text(
               "Calendrier de maintenance",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             TableCalendar(
               firstDay: DateTime.utc(2024, 1, 1),
               lastDay: DateTime.utc(2025, 12, 31),
               focusedDay: focusedDay,
-              currentDay: DateTime.now(),
-              calendarStyle: CalendarStyle(
+              selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+              onDaySelected: onDaySelected,
+              calendarStyle: const CalendarStyle(
                 todayDecoration: BoxDecoration(
                   color: Colors.blueGrey,
                   shape: BoxShape.circle,
@@ -33,9 +41,14 @@ class CalendarCard extends StatelessWidget {
                   color: Colors.orange,
                   shape: BoxShape.circle,
                 ),
+                weekendTextStyle: TextStyle(color: Colors.red),
               ),
-              headerStyle: HeaderStyle(formatButtonVisible: false),
-              selectedDayPredicate: (day) => isSameDay(focusedDay, day),
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+              ),
+              calendarFormat: CalendarFormat.month,
+              availableGestures: AvailableGestures.all,
             ),
           ],
         ),

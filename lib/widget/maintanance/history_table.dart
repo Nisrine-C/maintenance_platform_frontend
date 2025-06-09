@@ -1,62 +1,92 @@
 import 'package:flutter/material.dart';
+import '../../model/Maintenance.model.dart';
 
 class HistoryTable extends StatelessWidget {
-  TableRow _buildHeaderRow() {
-    return TableRow(
-      decoration: BoxDecoration(color: Colors.blueGrey.shade100),
-      children: [
-        _tableCell("Date", isHeader: true),
-        _tableCell("Action", isHeader: true),
-        _tableCell("Responsable", isHeader: true),
-      ],
-    );
-  }
+  final List<Maintenance> maintenanceList;
 
-  TableRow _buildDataRow(String date, String action, String user) {
-    return TableRow(
-      children: [
-        _tableCell(date),
-        _tableCell(action),
-        _tableCell(user),
-      ],
-    );
-  }
+  const HistoryTable({Key? key, required this.maintenanceList})
+    : super(key: key);
 
-  Widget _tableCell(String text, {bool isHeader = false}) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Historique des maintenances",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Date')),
+                  DataColumn(label: Text('Type')),
+                  DataColumn(label: Text('Description')),
+                  DataColumn(label: Text('Technicien')),
+                  DataColumn(label: Text('Status')),
+                  DataColumn(label: Text('Coût')),
+                ],
+                rows:
+                    maintenanceList.map((maintenance) {
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            Text(
+                              maintenance.scheduledDate.toString().split(
+                                ' ',
+                              )[0],
+                            ),
+                          ),
+                          DataCell(Text(maintenance.type)),
+                          DataCell(Text(maintenance.description)),
+                          DataCell(Text(maintenance.technician)),
+                          DataCell(_buildStatusCell(maintenance.status)),
+                          DataCell(
+                            Text('${maintenance.cost.toStringAsFixed(2)} €'),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildStatusCell(String status) {
+    Color color;
+    IconData icon;
+    switch (status.toLowerCase()) {
+      case 'completed':
+        color = Colors.green;
+        icon = Icons.check_circle;
+        break;
+      case 'scheduled':
+        color = Colors.blue;
+        icon = Icons.schedule;
+        break;
+      case 'cancelled':
+        color = Colors.red;
+        icon = Icons.cancel;
+        break;
+      default:
+        color = Colors.grey;
+        icon = Icons.help;
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Text("Historique des maintenances",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        SizedBox(height: 12),
-        Table(
-          border: TableBorder.all(color: Colors.grey.shade300),
-          columnWidths: {
-            0: FixedColumnWidth(100),
-            1: FlexColumnWidth(),
-            2: FixedColumnWidth(120),
-          },
-          children: [
-            _buildHeaderRow(),
-            _buildDataRow("9 avr. 24", "💪 Vérifier les roulements", "Paul"),
-            _buildDataRow("2 avr. 24", "🔄 Augmer logiciel des vibrations", "Sophie"),
-            _buildDataRow("26 mar. 24", "🔍 Inspecter le mécanisme de five", "Antoine"),
-            _buildDataRow("15 mar. 15", "⚙ Remplacer les roulements", "Pierre"),
-          ],
-        )
+        Icon(icon, color: color, size: 16),
+        const SizedBox(width: 4),
+        Text(status, style: TextStyle(color: color)),
       ],
     );
   }
