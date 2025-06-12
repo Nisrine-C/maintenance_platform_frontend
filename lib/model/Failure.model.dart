@@ -1,3 +1,9 @@
+
+import 'package:json_annotation/json_annotation.dart';
+
+part 'Failure.model.g.dart';
+
+@JsonSerializable(fieldRename: FieldRename.none)
 class Failure {
   final int id;
   final DateTime createdAt;
@@ -16,4 +22,9 @@ class Failure {
     required this.faultType,
     required this.machineId,
   });
+
+  factory Failure.fromJson(Map<String, dynamic> json) => _$FailureFromJson(json);
+  Map<String, dynamic> toJson() => _$FailureToJson(this);
+
+
 }

@@ -1,4 +1,8 @@
+import 'dart:async';
 import 'dart:math';
+import 'package:maintenance_platform_frontend/services/prediction_service.dart';
+import 'package:maintenance_platform_frontend/services/sensor_data_service.dart';
+
 import '../model/SensorData.model.dart';
 import '../model/Prediction.model.dart';
 import 'ai_engine_base.dart';
@@ -9,13 +13,36 @@ class AiEngineServiceNative extends AiEngineBase {
   final Map<int, List<SensorData>> _dataBuffers = {};
   final Map<int, DateTime> _lastPredictionTime = {};
 
+  final SensorDataService _sensorDataService = SensorDataService();
+  final PredictionService _predictionService = PredictionService();
+
+  final Set<int> _processedReadingIds = {};
+
   @override
   Future<void> initializeAndRun() async {
     print("AI Engine Native: Initializing...");
     // In native implementation, we would initialize ONNX here
     // But for now, we'll use simulated data
-    startSimulatedDataStreams();
+    _startDataProcessingLoop();
     print("AI Engine Native: Running and processing data streams...");
+  }
+
+  void _startDataProcessingLoop() {
+    Timer.periodic(const Duration(seconds:60),(timer) async{
+      print("AI Engine: Polling for new sensor data...");
+      try{
+        final List<SensorData> allReadings = await _sensorDataService.getSensorDatas();
+
+        for (final reading in allReadings) {
+          if (!_processedReadingIds.contains(reading.id)) {
+            await processNewReading(reading);
+            _processedReadingIds.add(reading.id);
+          }
+        }
+      } catch (e) {
+        print("AI Engine ERROR: Failed to fetch sensor data: $e");
+      }
+    });
   }
 
   @override
@@ -115,7 +142,7 @@ class AiEngineServiceNative extends AiEngineBase {
       }
 
       final prediction = Prediction(
-        id: _random.nextInt(1000),
+        id: 0,
         createdAt: DateTime.now(),
         isActive: true,
         updatedAt: DateTime.now(),
@@ -128,12 +155,21 @@ class AiEngineServiceNative extends AiEngineBase {
       print(
         "Generated prediction for machine $machineId: ${prediction.faultType} (Confidence: ${prediction.confidence.toStringAsFixed(2)}, RUL: ${rul.toStringAsFixed(0)} hours)",
       );
+      _savePrediction(prediction);
     } catch (e, stackTrace) {
       print(
         "AI Engine Native: Error generating prediction for machine $machineId",
       );
       print(e);
       print(stackTrace);
+    }
+  }
+  Future<void> _savePrediction(Prediction prediction) async {
+    try {
+      await _predictionService.createPrediction(prediction);
+      print("--> Prediction successfully saved to server.");
+    } catch (e) {
+      print("--> FAILED to save prediction to server: $e");
     }
   }
 }

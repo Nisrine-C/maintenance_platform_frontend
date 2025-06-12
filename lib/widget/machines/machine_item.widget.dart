@@ -28,7 +28,7 @@ class MachineItem extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Detail(machine: machine.name),
+            builder: (context) => Detail(machine: machine),
           ),
         );
       },
@@ -139,7 +139,7 @@ class MachineItem extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder:
-                                  (context) => Detail(machine: machine.name),
+                                  (context) => Detail(machine: machine),
                             ),
                           );
                         },

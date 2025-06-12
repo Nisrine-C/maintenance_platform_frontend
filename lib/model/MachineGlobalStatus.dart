@@ -3,12 +3,14 @@ class MachineStatusModel {
   final int predictedFaults;
   final int nearEndOfLife;
   final int active;
+  final int tets ;
 
   MachineStatusModel({
    required this.total,
     required this.predictedFaults,
     required this.nearEndOfLife,
     required this.active,
+    required this.tets,
   });
 
   // Exemple de données mockées
@@ -18,6 +20,7 @@ class MachineStatusModel {
       predictedFaults: 2,
       nearEndOfLife: 3,
       active: 12,
+      tets: 1,
     );
   }
 
@@ -35,6 +38,7 @@ class MachineStatusModel {
       predictedFaults: json['predictedFaults'],
       nearEndOfLife: json['nearEndOfLife'],
       active: json['active'],
+      tets: json['tets'],
     );
   }
 }
