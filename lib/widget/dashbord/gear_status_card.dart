@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maintenance_platform_frontend/model/MachineGlobalStatus.dart';
-import 'package:maintenance_platform_frontend/services/machineService/serviceDashbord.dart';
+import 'package:maintenance_platform_frontend/services/DashbordService/serviceDashbord.dart';
 import 'package:maintenance_platform_frontend/widget/dashbord/pie_chart_widget.dart';
 
 class StatutGlobalSection extends StatelessWidget {

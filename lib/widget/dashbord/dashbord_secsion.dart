@@ -15,7 +15,7 @@ class DashboardSecsion extends StatelessWidget {
           SizedBox(height: 16),
           AlertsSection(),
           SizedBox(height: 16),
-          GraphSection(),
+          GraphSection(machineId: 1),
         ],
       ),
     );
