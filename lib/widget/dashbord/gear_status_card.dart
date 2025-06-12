@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:maintenance_platform_frontend/model/MachineGlobalStatus.dart';
+import 'package:maintenance_platform_frontend/services/machineService/serviceDashbord.dart';
 import 'package:maintenance_platform_frontend/widget/dashbord/pie_chart_widget.dart';
 
 class StatutGlobalSection extends StatelessWidget {
@@ -7,70 +8,83 @@ class StatutGlobalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MachineStatusModel status = MachineStatusModel.mockData();
+    return FutureBuilder<MachineStatusModel>(
+      future: MachineService().fetchGlobalStats(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Erreur : ${snapshot.error}'));
+        } else if (!snapshot.hasData) {
+          return const Center(child: Text('Aucune donnée trouvée.'));
+        }
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-              spreadRadius: 2,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Statut Global',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Row(
-              children: [
-                const SizedBox(width: 8),
-                _buildInfoCard(
-                  icon: Icons.build,
-                  title: "Total\nMachines",
-                  count: status.totalMachines.toString(),
-                  subtitle: "En activité",
-                  bgColor: Colors.blue.shade100,
-                  textColor: Colors.blue,
-                ),
-                const SizedBox(width: 8),
-                _buildInfoCard(
-                  icon: Icons.error,
-                  title: "Predicted\nFaults",
-                  count: status.predictedFaults.toString(),
-                  subtitle: "Critique",
-                  bgColor: Colors.red.shade100,
-                  textColor: Colors.red,
-                ),
-                const SizedBox(width: 8),
-                _buildInfoCard(
-                  icon: Icons.hourglass_bottom,
-                  title: "Near\nEnd-of-Life",
-                  count: status.nearEndOfLife.toString(),
-                  subtitle: "À surveiller",
-                  bgColor: Colors.orange.shade100,
-                  textColor: Colors.orange,
+        final status = snapshot.data!;
+
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                  offset: Offset(0, 4),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            PieChartWidget(
-              dataMap: status.toPieChartData(),
-              colorList: [Colors.blue, Colors.orange, Colors.red],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Statut Global',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    _buildInfoCard(
+                      icon: Icons.build,
+                      title: "Total\nMachines",
+                      count: status.total.toString(),
+                      subtitle: "En activité",
+                      bgColor: Colors.blue.shade100,
+                      textColor: Colors.blue,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildInfoCard(
+                      icon: Icons.error,
+                      title: "Predicted\nFaults",
+                      count: status.predictedFaults.toString(),
+                      subtitle: "Critique",
+                      bgColor: Colors.red.shade100,
+                      textColor: Colors.red,
+                    ),
+                    const SizedBox(width: 8),
+                    _buildInfoCard(
+                      icon: Icons.hourglass_bottom,
+                      title: "Near\nEnd-of-Life",
+                      count: status.nearEndOfLife.toString(),
+                      subtitle: "À surveiller",
+                      bgColor: Colors.orange.shade100,
+                      textColor: Colors.orange,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                PieChartWidget(
+                  dataMap: status.toPieChartData(),
+                  colorList: [Colors.blue, Colors.orange, Colors.red],
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
