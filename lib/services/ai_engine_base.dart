@@ -5,6 +5,7 @@ import '../model/Prediction.model.dart';
 
 // Base class with common functionality
 abstract class AiEngineBase {
+
   final Map<int, String> _labelMap = {
     0: "eccentricity",
     1: "missing tooth",
@@ -19,6 +20,7 @@ abstract class AiEngineBase {
   Future<void> initializeAndRun();
   Future<void> processNewReading(SensorData reading);
 
+  /*
   void startSimulatedDataStreams() {
     // Simulate data for machines
     for (int i = 1; i <= 3; i++) {
@@ -43,6 +45,7 @@ abstract class AiEngineBase {
       processNewReading(reading);
     });
   }
+  */
 
   String getLabelForIndex(int index) {
     return _labelMap[index] ?? "Unknown";

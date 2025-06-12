@@ -1,3 +1,9 @@
+
+import 'package:json_annotation/json_annotation.dart';
+
+part 'Prediction.model.g.dart';
+
+@JsonSerializable(fieldRename: FieldRename.none)
 class Prediction {
   final int id;
   final DateTime createdAt;
@@ -18,4 +24,8 @@ class Prediction {
     required this.predictedRULHours,
     required this.machineId,
   });
+
+  factory Prediction.fromJson(Map<String, dynamic> json) => _$PredictionFromJson(json);
+  Map<String, dynamic> toJson() => _$PredictionToJson(this);
+
 }
