@@ -8,14 +8,26 @@ class GraphSection extends StatelessWidget {
   const GraphSection({super.key, required this.machineId});
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
+
+Widget build(BuildContext context) {
+  return ConstrainedBox(
+    constraints: BoxConstraints(
+      minHeight: MediaQuery.of(context).size.height * 0.6,
+    ),
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        VibrationHistogram(machineId: machineId),
+        SizedBox( // Constrain histogram
+          height: 400,
+          child: VibrationHistogram(machineId: machineId),
+        ),
         const SizedBox(height: 24),
-        VibrationTrendChart(machineId: machineId),
+        SizedBox( // Constrain trend chart
+          height: 300,
+          child: VibrationTrendChart(machineId: machineId),
+        ),
       ],
-    );
-  }
+    ),
+  );
+}
 }

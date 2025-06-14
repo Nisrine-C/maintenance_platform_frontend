@@ -53,12 +53,15 @@ class _VibrationHistogramState extends State<VibrationHistogram> {
       );
     }).toList();
 
-    return Column(
+    return SizedBox(
+    height: 400, // or whatever height you prefer
+    child: Column(
       children: [
         const Text("Histogramme des vibrations", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 16),
-        AspectRatio(
-          aspectRatio: 1.5,
+        Expanded( // Make the chart take remaining space
+          child: AspectRatio(
+            aspectRatio: 1.5,
           child: BarChart(
             BarChartData(
               barGroups: barGroups,
@@ -85,8 +88,9 @@ class _VibrationHistogramState extends State<VibrationHistogram> {
               gridData: FlGridData(show: true),
             ),
           ),
-        ),
+        ),),
       ],
+    ),
     );
   }
 }

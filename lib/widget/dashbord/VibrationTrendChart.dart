@@ -33,8 +33,11 @@ class _VibrationTrendChartState extends State<VibrationTrendChart> {
   Widget build(BuildContext context) {
     if (_data.isEmpty) return const CircularProgressIndicator();
 
-    return LineChart(
+  return SizedBox(
+    height: 300, 
+    child: LineChart(
       LineChartData(
+        
         titlesData: FlTitlesData(show: false),
         lineBarsData: [
           LineChartBarData(
@@ -57,6 +60,8 @@ class _VibrationTrendChartState extends State<VibrationTrendChart> {
           ),
         ],
       ),
-    );
+    ),
+  );
+   
   }
 }
