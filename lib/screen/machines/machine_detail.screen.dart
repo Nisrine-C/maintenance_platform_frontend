@@ -190,7 +190,7 @@ class _DetailState extends State<Detail> {
     } else if (widget.prediction != null) {
       return {
         'value': widget.prediction!.faultType ?? 'Warning',
-        'subtitle': "Prediction Confidence: ${(widget.prediction!.confidence * 100).toStringAsFixed(1)}%",
+        'subtitle': "Confidence: ${(widget.prediction!.confidence * 100).toStringAsFixed(1)}%",
       };
     }
     return {

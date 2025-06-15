@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
+import 'package:maintenance_platform_frontend/model/Failure.model.dart';
+import 'package:maintenance_platform_frontend/services/failure_service.dart';
 import 'package:maintenance_platform_frontend/services/prediction_service.dart';
 import 'package:maintenance_platform_frontend/services/sensor_data_service.dart';
 
 import '../model/SensorData.model.dart';
 import '../model/Prediction.model.dart';
 import 'ai_engine_base.dart';
-
 
 class AiEngineServiceNative extends AiEngineBase {
   // State Management
@@ -17,11 +18,14 @@ class AiEngineServiceNative extends AiEngineBase {
   final Map<int, DateTime> _lastPredictionTime = {};
   /// Stores the IDs of all readings that have already been processed to avoid duplicates.
   final Set<int> _processedReadingIds = {};
+
   // Service Dependencies
   /// Service to communicate with the backend's sensor data endpoints.
   final SensorDataService _sensorDataService = SensorDataService();
   /// Service to send new predictions to the backend.
   final PredictionService _predictionService = PredictionService();
+  /// Service to send new failures to the backend.
+  final FailureService _failureService = FailureService();
 
   @override
   Future<void> initializeAndRun() async {
@@ -63,7 +67,7 @@ class AiEngineServiceNative extends AiEngineBase {
 
     // Trigger a prediction if it's been 5+ minutes or the buffer is full.
     if (now.difference(lastPrediction).inMinutes >= 5 || buffer.length >= AiEngineBase.windowSize) {
-      _triggerPrediction(reading.machineId, buffer);
+      _triggerPrediction(reading.machineId, buffer, now);
       _lastPredictionTime[reading.machineId] = now;
 
       if (buffer.length >= AiEngineBase.windowSize) {
@@ -71,12 +75,30 @@ class AiEngineServiceNative extends AiEngineBase {
       }
     }
   }
-  void _triggerPrediction(int machineId, List<SensorData> buffer) {
+
+  void _triggerPrediction(int machineId, List<SensorData> buffer, DateTime predictionTime) {
     if (buffer.isEmpty) return;
 
     try {
-      final Prediction prediction = _generatePrediction(machineId, buffer);
+      // 1. Generate the prediction, passing the consistent timestamp
+      final Prediction prediction = _generatePrediction(machineId, buffer, predictionTime);
       _savePrediction(prediction);
+
+      // 2. Check if the prediction indicates an immediate failure (RUL <= 0)
+      if (prediction.predictedRULHours <= 0) {
+        print("--> (Native) RUL is 0. Generating a failure record for machine $machineId.");
+        // 3. Create a Failure object from the prediction data
+        final Failure failure = Failure(
+          createdAt: predictionTime,
+          isActive: true,
+          updatedAt: predictionTime,
+          downtimeHours: 2 + Random().nextDouble() * 6, // Simulate 2-8 hours of downtime
+          faultType: prediction.faultType, // Use the same fault type as the prediction
+          machineId: machineId,
+        );
+        // 4. Save the failure record to the backend
+        _saveFailure(failure);
+      }
     } catch (e, stackTrace) {
       print("AI Engine (Native): Error during prediction trigger: $e\n$stackTrace");
     }
@@ -92,9 +114,18 @@ class AiEngineServiceNative extends AiEngineBase {
     }
   }
 
+  /// Sends the generated failure object to the backend via the FailureService.
+  Future<void> _saveFailure(Failure failure) async {
+    try {
+      await _failureService.createFailure(failure);
+      print("--> (Native) Failure record successfully saved to server for machine ${failure.machineId}.");
+    } catch (e) {
+      print("--> (Native) FAILED to save failure record to server: $e");
+    }
+  }
+
   /// The core "AI" logic that analyzes a buffer of sensor data to create a prediction.
-  Prediction _generatePrediction(int machineId, List<SensorData> buffer) {
-    // This logic is identical to the web version.
+  Prediction _generatePrediction(int machineId, List<SensorData> buffer, DateTime predictionTime) {
     final vibrationXValues = buffer.map((d) => d.vibrationX).toList();
     final vibrationYValues = buffer.map((d) => d.vibrationY).toList();
     final loadValues = buffer.map((d) => d.loadValue).toList();
@@ -114,7 +145,12 @@ class AiEngineServiceNative extends AiEngineBase {
     double rul;
 
     // A simple rule-based system to classify faults based on the anomaly score.
-    if (anomalyScore < 30) {
+    if (anomalyScore > 120) {
+      // Catastrophic failure condition
+      faultType = getLabelForIndex(1); // 'Missing Tooth' as a critical failure
+      confidence = 0.9 + Random().nextDouble() * 0.1;
+      rul = 0.0; // The machine has failed, RUL is zero.
+    } else if (anomalyScore < 30) {
       faultType = getLabelForIndex(2); // No fault
       confidence = 0.95 + Random().nextDouble() * 0.05;
       rul = 10000 + Random().nextDouble() * 2000;
@@ -122,7 +158,7 @@ class AiEngineServiceNative extends AiEngineBase {
       faultType = (vibXVar > vibYVar) ? getLabelForIndex(0) : getLabelForIndex(4); // eccentricity vs surface defect
       confidence = 0.85 + Random().nextDouble() * 0.1;
       rul = 5000 + Random().nextDouble() * 2000;
-    } else {
+    } else { // anomalyScore is between 60 and 120
       if (loadMean > 90) {
         faultType = getLabelForIndex(3); // Root crack
       } else if (vibXVar > 150 || vibYVar > 150) {
@@ -134,12 +170,11 @@ class AiEngineServiceNative extends AiEngineBase {
       rul = 2000 + Random().nextDouble() * 1000;
     }
 
-    // Create the prediction object. The ID is 0 because the backend will assign the real ID.
+    // Create the prediction object.
     return Prediction(
-      id: 0,
-      createdAt: DateTime.now(),
+      createdAt: predictionTime,
       isActive: true,
-      updatedAt: DateTime.now(),
+      updatedAt: predictionTime,
       confidence: confidence,
       faultType: faultType,
       predictedRULHours: rul,

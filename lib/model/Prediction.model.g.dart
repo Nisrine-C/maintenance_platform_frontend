@@ -7,7 +7,7 @@ part of 'Prediction.model.dart';
 // **************************************************************************
 
 Prediction _$PredictionFromJson(Map<String, dynamic> json) => Prediction(
-  id: (json['id'] as num).toInt(),
+  id: (json['id'] as num?)?.toInt(),
   createdAt: DateTime.parse(json['createdAt'] as String),
   isActive: json['isActive'] as bool,
   updatedAt: DateTime.parse(json['updatedAt'] as String),

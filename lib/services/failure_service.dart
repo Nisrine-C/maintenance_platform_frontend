@@ -12,9 +12,6 @@ class FailureService {
 
   Future<List<Failure>> getFailures() async {
     final response = await http.get(Uri.parse('$_baseUrl/failure'));
-
-    print('DEBUG: Server responded with: ${response.body}');
-
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
       List<Failure> failures = body
@@ -33,9 +30,10 @@ class FailureService {
       body: jsonEncode(failure.toJson()),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       return Failure.fromJson(jsonDecode(response.body));
     } else {
+      print('DEBUG: Server responded with: ${response.body}');
       throw Exception('Failed to create failure. Status code: ${response.statusCode}');
     }
   }

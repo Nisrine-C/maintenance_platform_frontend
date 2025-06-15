@@ -28,6 +28,7 @@ class MaintenanceHistoryCard extends StatelessWidget {
               separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
                 final maintenance = maintenanceList[index];
+                /*
                 return ListTile(
                   leading: _getStatusIcon(maintenance.status),
                   title: Text(maintenance.type),
@@ -42,7 +43,7 @@ class MaintenanceHistoryCard extends StatelessWidget {
                   onTap: () {
                     _showMaintenanceDetails(context, maintenance);
                   },
-                );
+                );*/
               },
             ),
           ],
@@ -63,7 +64,7 @@ class MaintenanceHistoryCard extends StatelessWidget {
         return const Icon(Icons.help, color: Colors.grey);
     }
   }
-
+/*
   void _showMaintenanceDetails(BuildContext context, Maintenance maintenance) {
     showDialog(
       context: context,
@@ -116,7 +117,7 @@ class MaintenanceHistoryCard extends StatelessWidget {
             ],
           ),
     );
-  }
+  }*/
 
   Widget _detailRow(String label, String value) {
     return Padding(

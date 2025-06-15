@@ -13,8 +13,6 @@ class MaintenanceService {
   Future<List<Maintenance>> getMaintenances() async {
     final response = await http.get(Uri.parse('$_baseUrl/maintenance'));
 
-    print('DEBUG: Server responded with: ${response.body}');
-
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
       List<Maintenance> maintenances = body

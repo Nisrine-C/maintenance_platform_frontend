@@ -13,8 +13,6 @@ class PredictionService {
   Future<List<Prediction>> getPredictions() async {
     final response = await http.get(Uri.parse('$_baseUrl/prediction'));
 
-    print('DEBUG: Server responded with: ${response.body}');
-
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
       List<Prediction> predictions = body
@@ -34,7 +32,7 @@ class PredictionService {
       body: jsonEncode(prediction.toJson()),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       return Prediction.fromJson(jsonDecode(response.body));
     } else {
       print('response : ${response.body}');

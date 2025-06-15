@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/cupertino.dart';
+import 'package:maintenance_platform_frontend/model/Failure.model.dart';
+import 'package:maintenance_platform_frontend/services/failure_service.dart';
 import 'package:maintenance_platform_frontend/services/prediction_service.dart';
 import 'package:maintenance_platform_frontend/services/sensor_data_service.dart';
 
@@ -22,7 +24,8 @@ class AiEngineServiceWeb extends AiEngineBase {
   final SensorDataService _sensorDataService = SensorDataService();
   /// Service to send new predictions to the backend.
   final PredictionService _predictionService = PredictionService();
-
+  /// Service to send new failures to the backend.
+  final FailureService _failureService = FailureService();
 
   @override
   Future<void> initializeAndRun() async {
@@ -33,7 +36,7 @@ class AiEngineServiceWeb extends AiEngineBase {
   // Starts a periodic timer to poll the backend for sensor data.
   void _startDataProcessingLoop() {
     Timer.periodic(const Duration(seconds: 60), (timer) async {
-      debugPrint("AI Engine: Polling for sensor data...");
+      debugPrint("AI Engine (Web): Polling for sensor data...");
       try {
         final List<SensorData> allReadings =
         await _sensorDataService.getSensorDatas();
@@ -64,7 +67,7 @@ class AiEngineServiceWeb extends AiEngineBase {
 
     // Trigger a prediction if it's been 5+ minutes or the buffer is full.
     if (now.difference(lastPrediction).inMinutes >= 5 || buffer.length >= AiEngineBase.windowSize) {
-      _triggerPrediction(reading.machineId, buffer);
+      _triggerPrediction(reading.machineId, buffer, now);
       _lastPredictionTime[reading.machineId] = now;
 
       if (buffer.length >= AiEngineBase.windowSize) {
@@ -73,12 +76,29 @@ class AiEngineServiceWeb extends AiEngineBase {
     }
   }
 
-  void _triggerPrediction(int machineId, List<SensorData> buffer) {
+  void _triggerPrediction(int machineId, List<SensorData> buffer, DateTime predictionTime) {
     if (buffer.isEmpty) return;
 
     try {
-      final Prediction prediction = _generatePrediction(machineId, buffer);
+      // 1. Generate the prediction, passing the consistent timestamp
+      final Prediction prediction = _generatePrediction(machineId, buffer, predictionTime);
       _savePrediction(prediction);
+
+      // 2. Check if the prediction indicates an immediate failure (RUL <= 0)
+      if (prediction.predictedRULHours <= 0) {
+        print("--> (Web) RUL is 0. Generating a failure record for machine $machineId.");
+        // 3. Create a Failure object from the prediction data
+        final Failure failure = Failure(
+          createdAt: predictionTime,
+          isActive: true,
+          updatedAt: predictionTime,
+          downtimeHours: 2 + Random().nextDouble() * 6, // Simulate 2-8 hours of downtime
+          faultType: prediction.faultType, // Use the same fault type as the prediction
+          machineId: machineId,
+        );
+        // 4. Save the failure record to the backend
+        _saveFailure(failure);
+      }
     } catch (e, stackTrace) {
       print("AI Engine (Web): Error during prediction trigger: $e\n$stackTrace");
     }
@@ -94,25 +114,43 @@ class AiEngineServiceWeb extends AiEngineBase {
     }
   }
 
+  /// Sends the generated failure object to the backend via the FailureService.
+  Future<void> _saveFailure(Failure failure) async {
+    try {
+      await _failureService.createFailure(failure);
+      print("--> (Web) Failure record successfully saved to server for machine ${failure.machineId}.");
+    } catch (e) {
+      print("--> (Web) FAILED to save failure record to server: $e");
+    }
+  }
+
   /// The core "AI" logic that analyzes a buffer of sensor data to create a prediction.
-  Prediction _generatePrediction(int machineId, List<SensorData> buffer) {
+  Prediction _generatePrediction(int machineId, List<SensorData> buffer, DateTime predictionTime) {
     final vibrationXValues = buffer.map((d) => d.vibrationX).toList();
     final vibrationYValues = buffer.map((d) => d.vibrationY).toList();
     final loadValues = buffer.map((d) => d.loadValue).toList();
 
+    // Calculate statistics (mean, variance)
     final vibXMean = vibrationXValues.reduce((a, b) => a + b) / vibrationXValues.length;
     final vibYMean = vibrationYValues.reduce((a, b) => a + b) / vibrationYValues.length;
     final loadMean = loadValues.reduce((a, b) => a + b) / loadValues.length;
     final vibXVar = vibrationXValues.map((v) => pow(v - vibXMean, 2)).reduce((a, b) => a + b) / vibrationXValues.length;
     final vibYVar = vibrationYValues.map((v) => pow(v - vibYMean, 2)).reduce((a, b) => a + b) / vibrationYValues.length;
 
+    // Generate an anomaly score based on deviations from expected norms.
     final double anomalyScore = (vibXMean - 50).abs() + (vibYMean - 50).abs() + (loadMean - 70).abs() + (vibXVar > 100 ? 20 : 0) + (vibYVar > 100 ? 20 : 0);
 
     String faultType;
     double confidence;
     double rul;
 
-    if (anomalyScore < 30) {
+    // A simple rule-based system to classify faults based on the anomaly score.
+    if (anomalyScore > 120) {
+      // Catastrophic failure condition
+      faultType = getLabelForIndex(1); // 'Missing Tooth' as a critical failure
+      confidence = 0.9 + Random().nextDouble() * 0.1;
+      rul = 0.0; // The machine has failed, RUL is zero.
+    } else if (anomalyScore < 30) {
       faultType = getLabelForIndex(2); // No fault
       confidence = 0.95 + Random().nextDouble() * 0.05;
       rul = 10000 + Random().nextDouble() * 2000;
@@ -120,7 +158,7 @@ class AiEngineServiceWeb extends AiEngineBase {
       faultType = (vibXVar > vibYVar) ? getLabelForIndex(0) : getLabelForIndex(4); // eccentricity vs surface defect
       confidence = 0.85 + Random().nextDouble() * 0.1;
       rul = 5000 + Random().nextDouble() * 2000;
-    } else {
+    } else { // anomalyScore is between 60 and 120
       if (loadMean > 90) {
         faultType = getLabelForIndex(3); // Root crack
       } else if (vibXVar > 150 || vibYVar > 150) {
@@ -132,11 +170,11 @@ class AiEngineServiceWeb extends AiEngineBase {
       rul = 2000 + Random().nextDouble() * 1000;
     }
 
+    // Create the prediction object.
     return Prediction(
-      id: 0,
-      createdAt: DateTime.now(),
+      createdAt: predictionTime,
       isActive: true,
-      updatedAt: DateTime.now(),
+      updatedAt: predictionTime,
       confidence: confidence,
       faultType: faultType,
       predictedRULHours: rul,

@@ -5,7 +5,7 @@ part 'Prediction.model.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.none)
 class Prediction {
-  final int id;
+  final int? id;
   final DateTime createdAt;
   final bool isActive;
   final DateTime updatedAt;
@@ -16,7 +16,7 @@ class Prediction {
   final int machineId;
 
   Prediction({
-    required this.id,
+    this.id,
     required this.createdAt,
     required this.isActive,
     required this.updatedAt,
