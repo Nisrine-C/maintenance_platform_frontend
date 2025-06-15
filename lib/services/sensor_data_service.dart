@@ -13,7 +13,20 @@ class SensorDataService {
   Future<List<SensorData>> getSensorDatas() async {
     final response = await http.get(Uri.parse('$_baseUrl/sensor-data'));
 
-    print('DEBUG: Server responded with: ${response.body}');
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      List<SensorData> sensorDatas = body
+          .map(
+            (dynamic item) => SensorData.fromJson(item as Map<String, dynamic>),
+      ).toList();
+      return sensorDatas;
+    } else {
+      throw Exception('Failed to load sensorDatas');
+    }
+  }
+
+  Future<List<SensorData>> getSensorDataByMachine(int id) async {
+    final response = await http.get(Uri.parse('$_baseUrl/sensor-data-machine/$id'));
 
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
@@ -26,6 +39,7 @@ class SensorDataService {
       throw Exception('Failed to load sensorDatas');
     }
   }
+
   Future<SensorData> createSensorData(SensorData sensorData) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/sensor-data'),

@@ -11,10 +11,10 @@ SensorData _$SensorDataFromJson(Map<String, dynamic> json) => SensorData(
   createdAt: DateTime.parse(json['createdAt'] as String),
   isActive: json['isActive'] as bool,
   updatedAt: DateTime.parse(json['updatedAt'] as String),
-  loadValue: (json['loadValue'] as num).toDouble(),
-  speedSet: (json['speedSet'] as num).toDouble(),
-  vibrationX: (json['vibrationX'] as num).toDouble(),
-  vibrationY: (json['vibrationY'] as num).toDouble(),
+  loadValue: (json['loadValue'] as num?)?.toDouble() ?? 0.0,
+  speedSet: (json['speedSet'] as num?)?.toDouble() ?? 0.0,
+  vibrationX: (json['vibrationX'] as num?)?.toDouble() ?? 0.0,
+  vibrationY: (json['vibrationY'] as num?)?.toDouble() ?? 0.0,
   machineId: (json['machineId'] as num).toInt(),
 );
 

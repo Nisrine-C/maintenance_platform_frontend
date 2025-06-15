@@ -11,6 +11,7 @@ class Prediction {
   final DateTime updatedAt;
   final double confidence;
   final String faultType;
+  @JsonKey(defaultValue: 0.0)
   final double predictedRULHours;
   final int machineId;
 

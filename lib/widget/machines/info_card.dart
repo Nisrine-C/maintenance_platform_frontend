@@ -27,7 +27,9 @@ class InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Same width logic as SensorCard
-    double cardWidth = (MediaQuery.of(context).size.width - 52) / 2;
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    double cardWidth = screenWidth > 0 ? (screenWidth - 52) / 2 : 150;
 
     return Container(
       width: cardWidth,
@@ -56,7 +58,7 @@ class InfoCard extends StatelessWidget {
             height: progressBarHeight,
             child: showProgress
                 ? ProgressBar(
-              width: double.infinity,
+              width: cardWidth,
               height: progressBarHeight,
               progress: progress.clamp(0.0, 1.0),
             )

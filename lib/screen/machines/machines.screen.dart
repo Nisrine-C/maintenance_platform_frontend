@@ -5,78 +5,66 @@ import '../../constants/colors.dart';
 import '../../model/Failure.model.dart';
 import '../../model/Machine.model.dart';
 import '../../model/Prediction.model.dart';
+import '../../services/failure_service.dart';
 import '../../services/machine_service.dart';
+import '../../services/prediction_service.dart';
 import '../../widget/machines/machine_item.widget.dart';
 import '../../widget/machines/status_indicator.widget.dart';
 import 'machine_detail.screen.dart';
 
+class MachinesDashboardData {
+  final List<Machine> machines;
+  final List<Prediction> predictions;
+  final List<Failure> failures;
 
+  MachinesDashboardData({
+    required this.machines,
+    required this.predictions,
+    required this.failures,
+  });
+}
 
 class MachinesScreen extends StatefulWidget {
-  MachinesScreen({Key? key}) : super(key: key);
+  const MachinesScreen({Key? key}) : super(key: key);
 
   @override
-  State<MachinesScreen> createState()=> _MachinesScreenState();
+  State<MachinesScreen> createState() => _MachinesScreenState();
 }
 
 class _MachinesScreenState extends State<MachinesScreen> {
   final MachineService _machineService = MachineService();
-  late Future<List<Machine>> _machinesFuture;
+  final PredictionService _predictionService = PredictionService();
+  final FailureService _failureService = FailureService();
 
-  final List<Failure> failures = [
-    Failure(id: 1,
-        createdAt: DateTime.now(),
-        isActive: true,
-        updatedAt: DateTime.now(),
-        downtimeHours: 0,
-        faultType: "No fault",
-        machineId: 1),
-    Failure(id: 2,
-        createdAt: DateTime.now(),
-        isActive: true,
-        updatedAt: DateTime.now(),
-        downtimeHours: 5,
-        faultType: "Missing tooth",
-        machineId: 2),
-    Failure(id: 3,
-        createdAt: DateTime.now(),
-        isActive: true,
-        updatedAt: DateTime.now(),
-        downtimeHours: 10,
-        faultType: "Chipped tooth",
-        machineId: 3),
-  ];
-  final List<Prediction> predictions = [
-    Prediction(id: 1,
-        createdAt: DateTime.now(),
-        isActive: true,
-        updatedAt: DateTime.now(),
-        confidence: 0.99,
-        faultType: "No fault",
-        predictedRULHours: 9000.0,
-        machineId: 1),
-    Prediction(id: 2,
-        createdAt: DateTime.now(),
-        isActive: true,
-        updatedAt: DateTime.now(),
-        confidence: 0.85,
-        faultType: "Missing tooth",
-        predictedRULHours: 800.0,
-        machineId: 2),
-    Prediction(id: 3,
-        createdAt: DateTime.now(),
-        isActive: true,
-        updatedAt: DateTime.now(),
-        confidence: 0.78,
-        faultType: "Chipped tooth",
-        predictedRULHours: 500.0,
-        machineId: 3),
-  ];
+  late Future<MachinesDashboardData> _dashboardDataFuture;
 
   @override
   void initState() {
     super.initState();
-    _machinesFuture = _machineService.getMachines();
+    // Load all data when the screen initializes
+    _dashboardDataFuture = _loadDashboardData();
+  }
+
+  /// Fetches all required data from the API concurrently.
+  Future<MachinesDashboardData> _loadDashboardData() async {
+    try {
+      // Use Future.wait to run all API calls in parallel for great performance!
+      final results = await Future.wait([
+        _machineService.getMachines(),
+        _predictionService.getPredictions(),
+        _failureService.getFailures(),
+      ]);
+
+      // Create and return our data holder object
+      return MachinesDashboardData(
+        machines: results[0] as List<Machine>,
+        predictions: results[1] as List<Prediction>,
+        failures: results[2] as List<Failure>,
+      );
+    } catch (e) {
+      print("Error loading dashboard data: $e");
+      rethrow;
+    }
   }
 
   @override
@@ -98,38 +86,41 @@ class _MachinesScreenState extends State<MachinesScreen> {
               ],
             ),
             Expanded(
-              child: FutureBuilder<List<Machine>>(
-                future: _machinesFuture,
+              child: FutureBuilder<MachinesDashboardData>(
+                future: _dashboardDataFuture,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(child: Text('Error loading data: ${snapshot.error}'));
                   }
-                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  if (!snapshot.hasData || snapshot.data!.machines.isEmpty) {
                     return const Center(child: Text('No machines found.'));
                   }
 
-                  final liveMachines = snapshot.data!;
+                  final liveMachines = snapshot.data!.machines;
+                  final predictionsMap = {for (var p in snapshot.data!.predictions) p.machineId: p};
+                  final failuresMap = {for (var f in snapshot.data!.failures) f.machineId: f};
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 5),
                     itemCount: liveMachines.length,
                     itemBuilder: (context, index) {
                       final machine = liveMachines[index];
-
-                      final failure = failures.firstWhere((f) => f.machineId == machine.id, orElse: () => Failure(id: -1, createdAt: DateTime.now(), isActive: false, updatedAt: DateTime.now(), downtimeHours: 0, faultType: "N/A", machineId: machine.id),
-                      );
-                      final prediction = predictions.firstWhere((p) => p.machineId == machine.id, orElse: () => Prediction(id: -1, createdAt: DateTime.now(), isActive: false, updatedAt: DateTime.now(), confidence: 0, faultType: "N/A", predictedRULHours: 0, machineId: machine.id),);
-
+                      final prediction = predictionsMap[machine.id];
+                      final failure = failuresMap[machine.id];
 
                       return GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Detail(machine: machine),
+                              builder: (context) => Detail(
+                                  machine: machine,
+                                  prediction: prediction,
+                                  failure: failure
+                              ),
                             ),
                           );
                         },
@@ -150,3 +141,4 @@ class _MachinesScreenState extends State<MachinesScreen> {
     );
   }
 }
+

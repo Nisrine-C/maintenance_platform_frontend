@@ -96,9 +96,6 @@ class AiEngineServiceWeb extends AiEngineBase {
 
   /// The core "AI" logic that analyzes a buffer of sensor data to create a prediction.
   Prediction _generatePrediction(int machineId, List<SensorData> buffer) {
-    // ... (This entire method is identical to the one in the previous answer) ...
-    // ... (It calculates stats, anomaly score, and determines fault type) ...
-
     final vibrationXValues = buffer.map((d) => d.vibrationX).toList();
     final vibrationYValues = buffer.map((d) => d.vibrationY).toList();
     final loadValues = buffer.map((d) => d.loadValue).toList();

@@ -11,9 +11,7 @@ class MachineService {
 
   Future<List<Machine>> getMachines() async {
     final response = await http.get(Uri.parse('$_baseUrl/machine'));
-
     print('DEBUG: Server responded with: ${response.body}');
-
     if (response.statusCode == 200) {
       List<dynamic> body = jsonDecode(response.body);
       List<Machine> machines = body

@@ -5,14 +5,22 @@ class MaintenanceStatsCard extends StatelessWidget {
   final List<Maintenance> maintenanceList;
 
   const MaintenanceStatsCard({Key? key, required this.maintenanceList})
-    : super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final completedCount =
-        maintenanceList.where((m) => m.status == 'completed').length;
-    final scheduledCount =
-        maintenanceList.where((m) => m.status == 'scheduled').length;
+    // --- FIX: CALCULATE STATS BASED ON THE NEW MODEL ---
+    // The 'status' field no longer exists. We now use 'isPreventive'.
+
+    // 1. Count Preventive actions (where isPreventive is true).
+    final preventiveCount =
+        maintenanceList.where((m) => m.isPreventive).length;
+
+    // 2. Count Corrective actions (where isPreventive is false).
+    final correctiveCount =
+        maintenanceList.where((m) => !m.isPreventive).length;
+
+    // 3. The totalCost calculation is still valid because the 'cost' field exists.
     final totalCost = maintenanceList.fold(0.0, (sum, m) => sum + m.cost);
 
     return Card(
@@ -30,26 +38,27 @@ class MaintenanceStatsCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                // --- FIX: DISPLAY THE NEW STATS ---
                 _buildStatItem(
                   context,
-                  'Completed',
-                  completedCount.toString(),
-                  Icons.check_circle,
-                  Colors.green,
-                ),
-                _buildStatItem(
-                  context,
-                  'Scheduled',
-                  scheduledCount.toString(),
-                  Icons.schedule,
+                  'Preventive', // New Label
+                  preventiveCount.toString(),
+                  Icons.health_and_safety, // New Icon
                   Colors.blue,
                 ),
                 _buildStatItem(
                   context,
-                  'Total Cost',
-                  '\$${totalCost.toStringAsFixed(2)}',
-                  Icons.attach_money,
+                  'Corrective', // New Label
+                  correctiveCount.toString(),
+                  Icons.warning, // New Icon
                   Colors.orange,
+                ),
+                _buildStatItem(
+                  context,
+                  'Total Cost',
+                  '\$${totalCost.toStringAsFixed(0)}', // Formatting cost without decimals
+                  Icons.attach_money,
+                  Colors.green,
                 ),
               ],
             ),
@@ -59,31 +68,34 @@ class MaintenanceStatsCard extends StatelessWidget {
     );
   }
 
+  // This helper widget does not need to be changed, as it's already generic.
   Widget _buildStatItem(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 32),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: color,
-            fontWeight: FontWeight.bold,
+      BuildContext context,
+      String label,
+      String value,
+      IconData icon,
+      Color color,
+      ) {
+    return Expanded( // Wrap in Expanded to ensure even spacing
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 32),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: color,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-        ),
-      ],
+          Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+          ),
+        ],
+      ),
     );
   }
 }

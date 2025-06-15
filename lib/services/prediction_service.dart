@@ -10,7 +10,7 @@ class PredictionService {
     'Content-Type': 'application/json; charset=UTF-8',
   };
 
-  Future<List<Prediction>> getMachines() async {
+  Future<List<Prediction>> getPredictions() async {
     final response = await http.get(Uri.parse('$_baseUrl/prediction'));
 
     print('DEBUG: Server responded with: ${response.body}');
@@ -27,6 +27,7 @@ class PredictionService {
     }
   }
   Future<Prediction> createPrediction(Prediction prediction) async {
+    print(prediction.toJson());
     final response = await http.post(
       Uri.parse('$_baseUrl/prediction'),
       headers: _headers,
@@ -36,6 +37,7 @@ class PredictionService {
     if (response.statusCode == 201) {
       return Prediction.fromJson(jsonDecode(response.body));
     } else {
+      print('response : ${response.body}');
       throw Exception('Failed to create prediction. Status code: ${response.statusCode}');
     }
   }

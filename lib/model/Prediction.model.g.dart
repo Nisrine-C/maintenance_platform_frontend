@@ -13,7 +13,7 @@ Prediction _$PredictionFromJson(Map<String, dynamic> json) => Prediction(
   updatedAt: DateTime.parse(json['updatedAt'] as String),
   confidence: (json['confidence'] as num).toDouble(),
   faultType: json['faultType'] as String,
-  predictedRULHours: (json['predictedRULHours'] as num).toDouble(),
+  predictedRULHours: (json['predictedRULHours'] as num?)?.toDouble() ?? 0.0,
   machineId: (json['machineId'] as num).toInt(),
 );
 

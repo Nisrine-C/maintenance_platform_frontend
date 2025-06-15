@@ -9,9 +9,13 @@ class SensorData {
   final DateTime createdAt;
   final bool isActive;
   final DateTime updatedAt;
+  @JsonKey(defaultValue: 0.0)
   final double loadValue;
+  @JsonKey(defaultValue: 0.0)
   final double speedSet;
+  @JsonKey(defaultValue: 0.0)
   final double vibrationX;
+  @JsonKey(defaultValue: 0.0)
   final double vibrationY;
   final int machineId;
 

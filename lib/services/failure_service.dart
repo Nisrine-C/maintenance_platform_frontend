@@ -10,7 +10,7 @@ class FailureService {
     'Content-Type': 'application/json; charset=UTF-8',
   };
 
-  Future<List<Failure>> getMachines() async {
+  Future<List<Failure>> getFailures() async {
     final response = await http.get(Uri.parse('$_baseUrl/failure'));
 
     print('DEBUG: Server responded with: ${response.body}');
