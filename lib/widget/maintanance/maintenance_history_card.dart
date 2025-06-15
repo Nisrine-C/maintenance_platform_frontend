@@ -27,7 +27,7 @@ class MaintenanceHistoryCard extends StatelessWidget {
               itemCount: maintenanceList.length,
               separatorBuilder: (context, index) => const Divider(),
               itemBuilder: (context, index) {
-                final maintenance = maintenanceList[index];
+                //final maintenance = maintenanceList[index];
                 /*
                 return ListTile(
                   leading: _getStatusIcon(maintenance.status),

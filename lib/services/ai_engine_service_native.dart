@@ -55,24 +55,37 @@ class AiEngineServiceNative extends AiEngineBase {
 
   @override
   Future<void> processNewReading(SensorData reading) async {
+    // 1. SETUP & LOGGING
     if (!_dataBuffers.containsKey(reading.machineId)) {
       _dataBuffers[reading.machineId] = [];
     }
-
     final buffer = _dataBuffers[reading.machineId]!;
+    final windowSize = AiEngineBase.windowSize;
+
+    // 2. ADD NEW DATA
     buffer.add(reading);
+    debugPrint("AI Engine: Added reading for machine ${reading.machineId}. Buffer size now: ${buffer.length}");
 
-    final lastPrediction = _lastPredictionTime[reading.machineId] ?? DateTime.fromMillisecondsSinceEpoch(0);
-    final now = DateTime.now();
+    // 3. THE TRIGGER CONDITION (SIMPLE AND CLEAR)
+    // We only proceed if the buffer has AT LEAST enough data for one window.
+    if (buffer.length >= windowSize) {
+      debugPrint("AI Engine: Buffer is full (${buffer.length}/$windowSize). Triggering prediction.");
 
-    // Trigger a prediction if it's been 5+ minutes or the buffer is full.
-    if (now.difference(lastPrediction).inMinutes >= 5 || buffer.length >= AiEngineBase.windowSize) {
-      _triggerPrediction(reading.machineId, buffer, now);
+      // A. Perform the prediction on a SLICE of the most recent data.
+      // This ensures we always use exactly 'windowSize' items.
+      final analysisSlice = buffer.sublist(buffer.length - windowSize);
+      final now = DateTime.now();
+      _triggerPrediction(reading.machineId, analysisSlice, now);
       _lastPredictionTime[reading.machineId] = now;
 
-      if (buffer.length >= AiEngineBase.windowSize) {
-        buffer.clear();
-      }
+      // B. Trim the buffer to prevent it from growing indefinitely.
+      // This is a more robust sliding window. It removes the oldest reading.
+      buffer.removeAt(0);
+      debugPrint("AI Engine: Slid window. Buffer size is now ${buffer.length}.");
+
+    } else {
+      // If the buffer is not full, we explicitly log it and do nothing else.
+      debugPrint("AI Engine: Buffer filling... (${buffer.length}/$windowSize). Waiting for more data.");
     }
   }
 

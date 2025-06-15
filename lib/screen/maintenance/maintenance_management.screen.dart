@@ -5,7 +5,6 @@ import 'package:maintenance_platform_frontend/services/Maintenance_service.dart'
 import 'package:maintenance_platform_frontend/model/Maintenance.model.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../widget/maintanance/maintenance_history_card.dart';
-import '../../widget/maintanance/maintenance_stats_card.dart';
 import '../../widget/maintanance/calendar_card.dart';
 import '../../widget/maintanance/history_table.dart';
 import 'schedule_maintenance.screen.dart';

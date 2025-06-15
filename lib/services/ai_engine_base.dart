@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:math';
 import '../model/SensorData.model.dart';
-import '../model/Prediction.model.dart';
 
 // Base class with common functionality
 abstract class AiEngineBase {
@@ -15,7 +13,7 @@ abstract class AiEngineBase {
     5: "chipped tooth",
   };
 
-  static const int windowSize = 5000;
+  static const int windowSize = 100;
 
   Future<void> initializeAndRun();
   Future<void> processNewReading(SensorData reading);

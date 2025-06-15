@@ -4,11 +4,9 @@ import 'package:maintenance_platform_frontend/model/SensorData.model.dart';
 import 'package:maintenance_platform_frontend/model/Machine.model.dart';
 import 'package:maintenance_platform_frontend/model/Prediction.model.dart';
 import 'package:maintenance_platform_frontend/services/sensor_data_service.dart';
-import 'package:maintenance_platform_frontend/widget/machines/progress_bar.widget.dart';
 import 'package:maintenance_platform_frontend/widget/machines/info_card.dart';
 import 'package:maintenance_platform_frontend/widget/machines/maintenance_card.dart';
 import 'package:maintenance_platform_frontend/widget/machines/sensor_card.dart';
-import 'package:maintenance_platform_frontend/widget/machines/status_indicator.widget.dart';
 import '../maintenance/schedule_maintenance.screen.dart';
 
 class Detail extends StatefulWidget {
