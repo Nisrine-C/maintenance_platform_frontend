@@ -14,11 +14,21 @@ class MachineStatusModel {
 
   
 
-  Map<String, double> toPieChartData() {
+ Map<String, double> toPieChartData() {
+    final sum = total + predictedFaults + nearEndOfLife;
+
+    if (sum == 0) {
+      return {
+        'En activité': 0,
+        'À surveiller': 0,
+        'Critique': 0,
+      };
+    }
+
     return {
-      "En activité": (total - predictedFaults - nearEndOfLife).toDouble(),
-      "À surveiller": nearEndOfLife.toDouble(),
-      "Critique": predictedFaults.toDouble(),
+      'En activité': (total / sum) * 100,
+      'À surveiller': (nearEndOfLife / sum) * 100,
+      'Critique': (predictedFaults / sum) * 100,
     };
   }
 
