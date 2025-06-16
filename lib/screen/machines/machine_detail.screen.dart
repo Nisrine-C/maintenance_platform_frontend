@@ -3,6 +3,8 @@ import 'package:maintenance_platform_frontend/model/Failure.model.dart';
 import 'package:maintenance_platform_frontend/model/SensorData.model.dart';
 import 'package:maintenance_platform_frontend/model/Machine.model.dart';
 import 'package:maintenance_platform_frontend/model/Prediction.model.dart';
+import 'package:maintenance_platform_frontend/screen/machines/update_machine.screen.dart';
+import 'package:maintenance_platform_frontend/services/machine_service.dart';
 import 'package:maintenance_platform_frontend/services/sensor_data_service.dart';
 import 'package:maintenance_platform_frontend/widget/machines/info_card.dart';
 import 'package:maintenance_platform_frontend/widget/machines/maintenance_card.dart';
@@ -10,11 +12,13 @@ import 'package:maintenance_platform_frontend/widget/machines/sensor_card.dart';
 import '../maintenance/schedule_maintenance.screen.dart';
 
 class Detail extends StatefulWidget {
-  final Machine machine;
+  late Machine machine;
+
   final Prediction? prediction;
   final Failure? failure;
 
-  const Detail({
+
+  Detail({
     Key? key,
     required this.machine,
     this.prediction,
@@ -26,14 +30,53 @@ class Detail extends StatefulWidget {
 }
 
 class _DetailState extends State<Detail> {
-  late final Future<List<SensorData>> _sensorDataFuture;
-  final SensorDataService _sensorDataService = SensorDataService();
+  late Future<List<SensorData>> _sensorDataFuture;
+  late final MachineService _machineService = MachineService();
+  late final SensorDataService _sensorDataService = SensorDataService();
+  late Machine _machine;
+
 
   @override
   void initState() {
     super.initState();
-    _sensorDataFuture = _sensorDataService.getSensorDataByMachine(widget.machine.id);
+    _machine = widget.machine;
+
+    if (widget.machine.id != null) {
+      _sensorDataFuture = _sensorDataService.getSensorDataByMachine(widget.machine.id!);
+    } else {
+      _sensorDataFuture = Future.error('Machine ID is missing. Cannot load data.');
+    }
   }
+  void _deleteMachine() async {
+    // A. Show a confirmation dialog to the user first!
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Deletion'),
+        content: const Text('Are you sure you want to delete this machine? This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Delete')),
+        ],
+      ),
+    );
+
+    // B. If the user confirmed, then call the service.
+    if (confirmed == true && widget.machine.id != null) {
+      try {
+        await _machineService.deleteMachine(widget.machine.id!);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Machine deleted successfully')));
+          Navigator.pop(context,true ); // Go back to the previous screen
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error deleting machine: $e')));
+        }
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +85,18 @@ class _DetailState extends State<Detail> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("${widget.machine.name ?? 'Machine'} Details"),
+        title: Text("${_machine.name ?? 'Machine'} Details"),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: _deleteMachine,
+            tooltip: 'Delete Machine',
+          ),
+          IconButton(
+            icon: const Icon(Icons.update_sharp),
+            onPressed: () => _navigateToUpdateMachine(context),
+            tooltip: 'Update Machine',
+          ),
           IconButton(
             icon: const Icon(Icons.build),
             onPressed: () => _navigateToScheduleMaintenance(context),
@@ -77,7 +130,7 @@ class _DetailState extends State<Detail> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          widget.machine.name ?? 'Details',
+          _machine.name ?? 'Details',
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ],
@@ -202,8 +255,8 @@ class _DetailState extends State<Detail> {
     String rulValue = "100%";
     String rulSubtitle = "of expected lifetime";
 
-    if (widget.prediction != null && widget.machine.expectedLifetimeHours > 0) {
-      rulProgress = (widget.prediction!.predictedRULHours / widget.machine.expectedLifetimeHours);
+    if (widget.prediction != null && _machine.expectedLifetimeHours > 0) {
+      rulProgress = (widget.prediction!.predictedRULHours / _machine.expectedLifetimeHours);
       rulValue = "${(rulProgress * 100).toStringAsFixed(1)}%";
       rulSubtitle = "${widget.prediction!.predictedRULHours.toStringAsFixed(0)} hours left";
     }
@@ -220,9 +273,26 @@ class _DetailState extends State<Detail> {
       context,
       MaterialPageRoute(
         builder: (context) => ScheduleMaintenanceScreen(
-          machineName: widget.machine.name ?? 'Machine',
+          machineName: _machine.name ?? 'Machine',
         ),
       ),
     );
+  }
+  void _navigateToUpdateMachine(BuildContext context) async{
+    final machine = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UpdateMachineForm(
+          machine: _machine,
+        ),
+      ),
+    );
+
+    if (machine != null && machine is Machine) {
+      setState(() {
+        _machine = machine;
+        _sensorDataFuture = _sensorDataService.getSensorDataByMachine(machine.id!);
+      });
+    }
   }
 }

@@ -2,19 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:maintenance_platform_frontend/constants/colors.dart';
-import 'package:maintenance_platform_frontend/screen/machines/machines.screen.dart';
 import 'package:maintenance_platform_frontend/services/machine_service.dart';
 
 import '../../model/Machine.model.dart';
+import 'machine_detail.screen.dart';
 
-class CreateMachineForm extends StatefulWidget {
-  const CreateMachineForm({super.key});
-
+class UpdateMachineForm extends StatefulWidget {
+  const UpdateMachineForm({super.key, required this.machine});
+  final Machine machine;
   @override
-  State<CreateMachineForm> createState() => _CreateMachineFormState();
+  State<UpdateMachineForm> createState() => _UpdateMachineFormState();
 }
 
-class _CreateMachineFormState extends State<CreateMachineForm> {
+class _UpdateMachineFormState extends State<UpdateMachineForm> {
+
 
   final _formKey = GlobalKey<FormState>();
 
@@ -26,17 +27,29 @@ class _CreateMachineFormState extends State<CreateMachineForm> {
   bool _isActive = true;
 
   @override
+  void initState() {
+    super.initState();
+    _machineNameController.text = widget.machine.name ?? '';
+    _serialNumberController.text = widget.machine.serialNumber ?? '';
+    _expectedLifetimeHoursController.text = widget.machine.expectedLifetimeHours?.toString() ?? '';
+    _isActive = widget.machine.isActive ?? true;
+  }
+
+  @override
   void dispose() {
     _machineNameController.dispose();
     _serialNumberController.dispose();
     _expectedLifetimeHoursController.dispose();
     super.dispose();
   }
+
   Future<void> _saveMachine(Machine machine) async{
     try {
-      await _machineService.createMachine(machine);
-      print("--> (Native) Machine record successfully saved to server for machine ${machine.id}.");
-      _navigateToMachines(context);
+      if(machine.id != null){
+        await _machineService.updateMachine(machine.id!,machine);
+        print("--> (Native) Machine record successfully saved to server for machine ${machine.id}.");
+        _navigateToMachineDetail(context,machine);
+      }
     } catch (e) {
       print("--> (Native) FAILED to save Machine record to server: $e");
     }
@@ -44,26 +57,29 @@ class _CreateMachineFormState extends State<CreateMachineForm> {
 
   void _submitForm() {
     if (_formKey.currentState?.validate() ?? false) {
-      final Machine machine = Machine(
-        isActive: _isActive,
-        expectedLifetimeHours : double.parse( _expectedLifetimeHoursController.text),
-        name : _machineNameController.text,
-        serialNumber: _serialNumberController.text
-      );
+        final Machine newMachine = Machine(
+            id:widget.machine.id,
+            isActive: _isActive,
+            expectedLifetimeHours: double.parse(
+                _expectedLifetimeHoursController.text),
+            name: _machineNameController.text,
+            serialNumber: _serialNumberController.text
+        );
 
-      _saveMachine(machine);
+        _saveMachine(newMachine);
 
-    }
+      }
+
   }
-  void _navigateToMachines(BuildContext context) {
-    Navigator.pop(context,true);
+  void _navigateToMachineDetail(BuildContext context, Machine newMachine) {
+    Navigator.pop(context,newMachine);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Create Machine'),
+        title: Text('Update Machine'),
       ),
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -283,7 +299,7 @@ class _CreateMachineFormState extends State<CreateMachineForm> {
                     elevation: 5,
                   ),
                   child: Text(
-                    'Create Machine',
+                    'Update Machine',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -297,6 +313,7 @@ class _CreateMachineFormState extends State<CreateMachineForm> {
       ),
     );
   }
+
 
 }
 

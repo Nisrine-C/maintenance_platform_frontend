@@ -29,9 +29,10 @@ class MachineService {
       body: jsonEncode(machine.toJson()),
     );
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       return Machine.fromJson(jsonDecode(response.body));
     } else {
+      print(response.body);
       throw Exception('Failed to create machine. Status code: ${response.statusCode}');
     }
   }
@@ -46,12 +47,30 @@ class MachineService {
   }
 
   Future<void> deleteMachine(int id) async {
+    print('attempting delete');
     final response = await http.delete(
       Uri.parse('$_baseUrl/machine/$id'),
       headers: _headers,
     );
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception('Failed to delete machine with id $id');
+    }else{
+      print('Machine ${id} deleted successfully');
+    }
+  }
+
+  Future<Machine> updateMachine(int id, Machine machine) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/machine/$id'),
+      headers: _headers,
+      body: jsonEncode(machine.toJson()),
+    );
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print(response.body);
+      return Machine.fromJson(jsonDecode(response.body));
+    } else {
+      print(response.body);
+      throw Exception('Failed to create machine. Status code: ${response.statusCode}');
     }
   }
 }

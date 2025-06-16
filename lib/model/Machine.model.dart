@@ -4,19 +4,19 @@ part 'Machine.model.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.none)
 class Machine {
-  final int id;
-  final DateTime createdAt;
+  final int? id;
+  final DateTime? createdAt;
   final bool isActive;
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   final double expectedLifetimeHours;
   final String name;
   final String serialNumber;
 
   Machine({
-    required this.id,
-    required this.createdAt,
+    this.id,
+    this.createdAt,
     required this.isActive,
-    required this.updatedAt,
+    this.updatedAt,
     required this.expectedLifetimeHours,
     required this.name,
     required this.serialNumber,

@@ -25,7 +25,6 @@ class PredictionService {
     }
   }
   Future<Prediction> createPrediction(Prediction prediction) async {
-    print(prediction.toJson());
     final response = await http.post(
       Uri.parse('$_baseUrl/prediction'),
       headers: _headers,
@@ -33,6 +32,7 @@ class PredictionService {
     );
 
     if (response.statusCode == 201 || response.statusCode == 200) {
+      print('response : ${response.body}');
       return Prediction.fromJson(jsonDecode(response.body));
     } else {
       print('response : ${response.body}');

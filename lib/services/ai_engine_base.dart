@@ -13,6 +13,7 @@ abstract class AiEngineBase {
     5: "chipped tooth",
   };
 
+
   static const int windowSize = 100;
 
   Future<void> initializeAndRun();

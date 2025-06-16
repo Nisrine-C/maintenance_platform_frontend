@@ -10,6 +10,7 @@ import '../../services/machine_service.dart';
 import '../../services/prediction_service.dart';
 import '../../widget/machines/machine_item.widget.dart';
 import '../../widget/machines/status_indicator.widget.dart';
+import 'create_machine.screen.dart';
 import 'machine_detail.screen.dart';
 
 class MachinesDashboardData {
@@ -70,7 +71,16 @@ class _MachinesScreenState extends State<MachinesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Machines')),
+      appBar: AppBar(
+        title: Text('Machines'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => _navigateToCreateMachine(context),
+            tooltip: 'Create Machine',
+          ),
+        ],
+      ),
       drawer: buildHomeDrawer(context),
       backgroundColor: Colors.white,
       body: Container(
@@ -80,9 +90,21 @@ class _MachinesScreenState extends State<MachinesScreen> {
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                StatusIndicator(label: 'OK', icon: Icons.check_circle, backgroundColor: tdGreen, iconColor: textGreen, textColor: textGreen),
-                StatusIndicator(label: 'Warning', icon: Icons.error, backgroundColor: tdYellow, iconColor: textYellow, textColor: textYellow),
-                StatusIndicator(label: 'Failure', icon: Icons.cancel, backgroundColor: tdRed, iconColor: textRed, textColor: textRed),
+                StatusIndicator(label: 'OK',
+                    icon: Icons.check_circle,
+                    backgroundColor: tdGreen,
+                    iconColor: textGreen,
+                    textColor: textGreen),
+                StatusIndicator(label: 'Warning',
+                    icon: Icons.error,
+                    backgroundColor: tdYellow,
+                    iconColor: textYellow,
+                    textColor: textYellow),
+                StatusIndicator(label: 'Failure',
+                    icon: Icons.cancel,
+                    backgroundColor: tdRed,
+                    iconColor: textRed,
+                    textColor: textRed),
               ],
             ),
             Expanded(
@@ -93,15 +115,20 @@ class _MachinesScreenState extends State<MachinesScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error loading data: ${snapshot.error}'));
+                    return Center(
+                        child: Text('Error loading data: ${snapshot.error}'));
                   }
                   if (!snapshot.hasData || snapshot.data!.machines.isEmpty) {
                     return const Center(child: Text('No machines found.'));
                   }
 
                   final liveMachines = snapshot.data!.machines;
-                  final predictionsMap = {for (var p in snapshot.data!.predictions) p.machineId: p};
-                  final failuresMap = {for (var f in snapshot.data!.failures) f.machineId: f};
+                  final predictionsMap = {
+                    for (var p in snapshot.data!.predictions) p.machineId: p
+                  };
+                  final failuresMap = {
+                    for (var f in snapshot.data!.failures) f.machineId: f
+                  };
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(vertical: 5),
@@ -116,11 +143,12 @@ class _MachinesScreenState extends State<MachinesScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => Detail(
-                                  machine: machine,
-                                  prediction: prediction,
-                                  failure: failure
-                              ),
+                              builder: (context) =>
+                                  Detail(
+                                      machine: machine,
+                                      prediction: prediction,
+                                      failure: failure
+                                  ),
                             ),
                           );
                         },
@@ -140,5 +168,18 @@ class _MachinesScreenState extends State<MachinesScreen> {
       ),
     );
   }
-}
 
+  void _navigateToCreateMachine(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CreateMachineForm()),
+    );
+
+    if (result == true) {
+      setState(() {
+        _dashboardDataFuture=_loadDashboardData();
+      });
+    }
+  }
+
+}
