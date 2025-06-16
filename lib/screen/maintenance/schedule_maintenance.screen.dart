@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../model/Machine.model.dart';
+import '../../model/Maintenance.model.dart';
 import 'package:intl/intl.dart';
 
 class ScheduleMaintenanceScreen extends StatefulWidget {

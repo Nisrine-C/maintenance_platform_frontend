@@ -37,13 +37,15 @@ class HistoryTable extends StatelessWidget {
                         cells: [
                           DataCell(
                             Text(
-                             'no',
+                              maintenance.scheduledDate.toString().split(
+                                ' ',
+                              )[0],
                             ),
                           ),
-                         // DataCell(Text(maintenance.type)),
-                          //DataCell(Text(maintenance.description)),
-                          //DataCell(Text(maintenance.technician)),
-                          //DataCell(_buildStatusCell(maintenance.status)),
+                          DataCell(Text(maintenance.type)),
+                          DataCell(Text(maintenance.description)),
+                          DataCell(Text(maintenance.technician)),
+                          DataCell(_buildStatusCell(maintenance.status)),
                           DataCell(
                             Text('${maintenance.cost.toStringAsFixed(2)} €'),
                           ),

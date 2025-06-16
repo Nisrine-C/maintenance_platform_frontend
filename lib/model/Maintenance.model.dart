@@ -1,45 +1,59 @@
-import 'package:json_annotation/json_annotation.dart';
-
-part 'Maintenance.model.g.dart';
-
-// Use snake_case to automatically convert from database names like 'created_at' to Dart names like 'createdAt'
-@JsonSerializable(fieldRename: FieldRename.snake)
 class Maintenance {
   final int id;
-
-  // These fields exist in the database
   final DateTime createdAt;
-  final DateTime updatedAt;
-  final bool isActive;
-  final DateTime actionDate;
-
-  // Make description nullable as it might be empty
-  final String? actionDescription;
-
-  final double cost;
-  final bool isPreventive;
+  final DateTime scheduledDate;
+  final String status; // 'scheduled', 'completed', 'cancelled'
+  final String type;
+  final String description;
   final int machineId;
+  final String technician;
+  final double duration; // in hours
+  final List<String> tasks;
+  final double cost;
 
   Maintenance({
     required this.id,
     required this.createdAt,
-    required this.updatedAt,
-    required this.isActive,
-    required this.actionDate,
-    this.actionDescription, // Now optional
-    required this.cost,
-    required this.isPreventive,
+    required this.scheduledDate,
+    required this.status,
+    required this.type,
+    required this.description,
     required this.machineId,
+    required this.technician,
+    required this.duration,
+    required this.tasks,
+    required this.cost,
   });
 
-  factory Maintenance.fromJson(Map<String, dynamic> json) => _$MaintenanceFromJson(json);
-  Map<String, dynamic> toJson() => _$MaintenanceToJson(this);
-
-
+  // Mock data generator
   static List<Maintenance> getMockMaintenanceList() {
     return [
-      // ... old mock data ...
+      Maintenance(
+        id: 1,
+        createdAt: DateTime.now().subtract(Duration(days: 30)),
+        scheduledDate: DateTime.now().subtract(Duration(days: 25)),
+        status: 'completed',
+        type: 'Preventive',
+        description: 'Regular inspection and parts replacement',
+        machineId: 1,
+        technician: 'John Doe',
+        duration: 4.5,
+        tasks: ['Inspection', 'Oil Change', 'Parts Replacement'],
+        cost: 1200.0,
+      ),
+      Maintenance(
+        id: 2,
+        createdAt: DateTime.now().subtract(Duration(days: 15)),
+        scheduledDate: DateTime.now().add(Duration(days: 5)),
+        status: 'scheduled',
+        type: 'Corrective',
+        description: 'Emergency repair due to bearing failure',
+        machineId: 2,
+        technician: 'Jane Smith',
+        duration: 8.0,
+        tasks: ['Bearing Replacement', 'Alignment Check'],
+        cost: 2500.0,
+      ),
     ];
   }
-
 }
