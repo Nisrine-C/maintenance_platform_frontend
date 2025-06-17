@@ -14,7 +14,7 @@ abstract class AiEngineBase {
   };
 
 
-  static const int windowSize = 100;
+  static const int windowSize = 45;
 
   Future<void> initializeAndRun();
   Future<void> processNewReading(SensorData reading);
